@@ -49,12 +49,14 @@ app.post("/account", (request, response) => {
   return response.status(201).send();
 });
 
-app.get("/statement", verifyCustomerExists, (request, response) => {
+app.use(verifyCustomerExists);
+
+app.get("/statement", (request, response) => {
   const { customer } = request;
   return response.json(customer.statement);
 });
 
-app.post("/deposit", verifyCustomerExists, (request, response) => {
+app.post("/deposit", (request, response) => {
   const { customer } = request;
   const { amount, description } = request.body;
 
@@ -71,7 +73,7 @@ app.post("/deposit", verifyCustomerExists, (request, response) => {
   return response.status(201).send();
 });
 
-app.post("/withdraw", verifyCustomerExists, (request, response) => {
+app.post("/withdraw", (request, response) => {
   const { customer } = request;
   const { amount } = request.body;
 
@@ -92,7 +94,7 @@ app.post("/withdraw", verifyCustomerExists, (request, response) => {
   return response.status(201).send();
 });
 
-app.get("/statement/date", verifyCustomerExists, (request, response) => {
+app.get("/statement/date", (request, response) => {
   const { customer } = request;
   const { date } = request.query;
 
@@ -105,7 +107,7 @@ app.get("/statement/date", verifyCustomerExists, (request, response) => {
   return response.json(statement);
 });
 
-app.put("/account", verifyCustomerExists, (request, response) => {
+app.put("/account", (request, response) => {
   const { customer } = request;
   const { name } = request.body;
 
@@ -114,9 +116,23 @@ app.put("/account", verifyCustomerExists, (request, response) => {
   return response.status(201).send();
 });
 
-app.get("/account", verifyCustomerExists, (request, response) => {
+app.get("/account", (request, response) => {
   const { customer } = request;
   return response.json(customer);
+});
+
+app.get("/balance", (request, response) => {
+  const { customer } = request;
+  const balance = getCustomerBalance(customer.statement);
+
+  return response.json(balance);
+});
+
+app.delete("/account", (request, response) => {
+  const { customer } = request;
+  customers.splice(customer, 1);
+
+  return response.status(202).send();
 });
 
 app.listen(3333);
